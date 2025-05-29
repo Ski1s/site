@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>❤️</title>
+  <style>
+    /* Сброс стилей и общие настройки */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      overflow: hidden;
+    }
+
+    /* Градиентный фон */
+    #background {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(to bottom, #52091a, #962b4e);
+      z-index: 0;
+    }
+
+    /* Центральный экран с текстом и кнопкой */
+    .container {
+      position: relative;
+      z-index: 2;
+      width: 100%;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      color: white;
+      text-align: center;
+      transition: opacity 1s ease;
+    }
+
+    /* Заголовок */
+    h1 {
+      font-size: 36px;
+      margin-bottom: 20px;
+    }
+
+    /* Обычный текст и выделенный */
+    p, em {
+      font-size: 18px;
+      max-width: 80%;
+      margin-bottom: 20px;
+    }
+
+    /* Стиль кнопки */
+    .btn {
+      background-color: #e43eac;
+      color: white;
+      border: none;
+      padding: 15px 30px;
+      font-size: 16px;
+      cursor: pointer;
+      border-radius: 8px;
+      text-decoration: none;
+      transition: background-color 0.3s ease;
+      user-select: none; /* отключаем выделение текста при касании */
+    }
+
+    /* Эффект при наведении на кнопку */
+    .btn:hover {
+      background-color: #610c5d;
+    }
+
+    /* Падающее сердечко */
+    .heart {
+      position: fixed;
+      top: -10px;
+      color: #ff69b4;
+      z-index: 1;
+      animation: fall 6s linear forwards;
+      pointer-events: none;
+    }
+
+    /* Анимация падения сердечек */
+    @keyframes fall {
+      0% {
+        transform: translateY(0) rotate(0deg);
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(100vh) rotate(360deg);
+        opacity: 0;
+      }
+    }
+
+    /* Холст с матрицей */
+    canvas {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 1;
+      background-color: transparent;
+    }
+
+    /* ========== НОВОЕ: Адаптивные стили для мобильных ========== */
+    @media (max-width: 480px) {
+      h1 {
+        font-size: 24px;
+        margin-bottom: 15px;
+      }
+      p, em {
+        font-size: 14px;
+        max-width: 90%;
+        margin-bottom: 15px;
+      }
+      .btn {
+        padding: 12px 20px;
+        font-size: 14px;
+        border-radius: 6px;
+      }
+      .heart {
+        font-size: 20px !important; /* уменьшаем размер сердечек */
+      }
+      canvas {
+        width: 100% !important;
+        height: 100% !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Градиентный фон -->
+  <div id="background"></div>
+
+  <!-- Первый экран с надписью и кнопкой -->
+  <div class="container" id="startScreen">
+    <h1>Сделано для Ксюши!!!</h1>
+    <em>Сделал: anonumous</em>
+    <p></p>
+    <a href="#" class="btn" onclick="startMatrix()">Нажми</a>
+  </div>
+
+  <!-- Холст для анимации матрицы -->
+  <canvas id="matrix"></canvas>
+
+  <script>
+    // Определяем мобильное устройство по ширине окна
+    const isMobile = window.innerWidth <= 480;
+
+    // 🌸 Создание падающих лепестков и сердечек
+    function createHeart() {
+      const symbols = ['❤️', '🌸', '🥰', '🤩', '😍']; // Добавляем оба символа
+      const heart = document.createElement('div');
+      heart.className = 'heart';
+      heart.innerText = symbols[Math.floor(Math.random() * symbols.length)];
+      // Размер сердечек меньше на мобилках
+      const size = isMobile ? (Math.random() * 20 + 10) : (Math.random() * 40 + 30);
+      heart.style.left = Math.random() * 100 + 'vw';
+      heart.style.fontSize = size + 'px';
+      document.body.appendChild(heart);
+      setTimeout(() => heart.remove(), 6000);
+    }
+
+    // Интервал для появления сердечек — реже на мобилках
+    const heartIntervalTime = isMobile ? 300 : 150;
+    const heartInterval = setInterval(createHeart, heartIntervalTime);
+
+    // 🚀 Старт анимации матрицы после нажатия кнопки
+    function startMatrix() {
+      document.getElementById('startScreen').style.opacity = 0;
+
+      setTimeout(() => {
+        document.getElementById('startScreen').style.display = 'none';
+        clearInterval(heartInterval); // Остановить сердечки
+        runMatrix(); // Запустить матрицу
+        document.getElementById('bgMusic').play(); // ▶️ Запуск музыки
+      }, 1000);
+    }
+
+    // 🟩 Матрица "I Love You"
+    function runMatrix() {
+  const canvas = document.getElementById('matrix');
+  const ctx = canvas.getContext('2d');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  canvas.style.display = 'block';
+
+  let fontSize = 16;
+  if (window.innerWidth <= 480) fontSize = 12;
+  ctx.font = fontSize + "px monospace";
+
+  const text = "I Love You";
+  const textWidth = ctx.measureText(text).width;
+
+  const columnGap = 6;
+  const maxColumns = Math.floor(canvas.width / (textWidth + columnGap));
+  const totalTextWidth = maxColumns * textWidth + (maxColumns - 1) * columnGap;
+  const sidePadding = (canvas.width - totalTextWidth) / 2;
+
+  // Вместо массива из чисел, создаём массив капель с позициями для каждой колонки
+  // Каждая колонка содержит массив из 4 капель с разным вертикальным положением
+  const drops = [];
+  const dropsCountPerColumn = 4; // количество капель на колонку
+  for (let i = 0; i < maxColumns; i++) {
+    drops[i] = [];
+    for (let j = 0; j < dropsCountPerColumn; j++) {
+      // Задаём начальную позицию капли с равномерным смещением по высоте (отрицательное, чтобы были сдвинуты вверх)
+      drops[i][j] = Math.floor(Math.random() * -canvas.height);
+    }
+  }
+
+  function draw() {
+    // Затираем полупрозрачным черным для эффекта затухания
+    ctx.fillStyle = "rgba(0, 0, 0, 0.15)";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    ctx.fillStyle = "#e43eac";
+    ctx.font = fontSize + "px monospace";
+
+    for (let i = 0; i < drops.length; i++) {
+      for (let j = 0; j < dropsCountPerColumn; j++) {
+        const yPos = drops[i][j] * fontSize;
+
+        if (yPos > 0 && yPos < canvas.height) {
+          ctx.fillText(text, i * (textWidth + columnGap) + sidePadding, yPos);
+        }
+
+        // Обновляем позицию капли вниз
+        drops[i][j] += 0.5; // скорость падения (можно увеличить)
+
+        // Если капля ушла ниже экрана, возвращаем её вверх с небольшой случайной задержкой
+        if (drops[i][j] * fontSize > canvas.height) {
+          drops[i][j] = Math.floor(Math.random() * -10);
+        }
+      }
+    }
+  }
+
+  setInterval(draw, 30);
+}
+
+    // ✨ Обработка кликов — текст и частицы
+    document.addEventListener("click", function (e) {
+      if (e.target.closest(".btn")) return; // Игнорируем клик по кнопке
+
+      const phrases = ["Ксюша", "Лучшая", "Ты самая красивая"];
+      const phrase = phrases[Math.floor(Math.random() * phrases.length)];
+
+      showClickText(e.clientX, e.clientY, phrase); // 💬 Появляющийся текст
+      for (let i = 0; i < 30; i++) {
+        createParticle(e.clientX, e.clientY); // 💥 Частицы
+      }
+    });
+
+    // 💬 Показывает фразу на месте клика
+    function showClickText(x, y, text) {
+      const el = document.createElement("div");
+      el.innerText = text;
+      Object.assign(el.style, {
+        position: "fixed",
+        left: `${x}px`,
+        top: `${y}px`,
+        transform: "translate(-50%, -50%)",
+        color: "#ff69b4",
+        fontSize: "18px",
+        fontWeight: "bold",
+        zIndex: 100,
+        pointerEvents: "none",
+        opacity: 1,
+        transition: "opacity 1.5s ease, transform 1.5s ease",
+      });
+      document.body.appendChild(el);
+
+      // Анимация исчезновения
+      setTimeout(() => {
+        el.style.opacity = 0;
+        el.style.transform += " scale(1.5)";
+      }, 50);
+
+      setTimeout(() => el.remove(), 1500);
+    }
+
+    // 💥 Создаёт частицу на месте клика
+    function createParticle(x, y) {
+      const particle = document.createElement("div");
+      Object.assign(particle.style, {
+        position: "fixed",
+        left: `${x}px`,
+        top: `${y}px`,
+        width: "8px",
+        height: "8px",
+        background: "#ff69b4",
+        borderRadius: "50%",
+        pointerEvents: "none",
+        zIndex: 99,
+        opacity: 1,
+        transform: "translate(-50%, -50%)",
+      });
+      document.body.appendChild(particle);
+
+      const angle = Math.random() * 2 * Math.PI;
+      const distance = Math.random() * 100 + 30;
+      const dx = Math.cos(angle) * distance;
+      const dy = Math.sin(angle) * distance;
+
+      // Анимация разлёта частицы
+      particle.animate(
+        [
+          { transform: `translate(-50%, -50%)`, opacity: 1 },
+          { transform: `translate(${dx}px, ${dy}px)`, opacity: 0 },
+        ],
+        {
+          duration: 1000 + Math.random() * 500,
+          easing: "ease-out",
+        }
+      );
+
+      setTimeout(() => particle.remove(), 1500);
+    }
+
+    // 🔄 Обработка изменения размера окна
+    window.addEventListener('resize', () => {
+      const canvas = document.getElementById('matrix');
+      if (canvas.style.display === 'block') {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+      }
+    });
+  </script>
+  <audio id="bgMusic" src="mus.mp3" loop preload="auto"></audio>
+</body>
+</html>
